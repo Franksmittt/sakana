@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakana no Ichi - The Art of Nourishment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sumi-black: #1A1A1A;
+            --washi-white: #FDFDFD;
+            --kintsugi-gold: #B3A76B; /* Used for accents in the main page content */
+            --vitality-red: #B91C1C;
+            --bamboo-beige: #D2C4A2; /* Used for underline hover effect in new header */
+            --stone-gray: #2A2A2A;   /* Used for scrolled background in new header */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--sumi-black);
+            color: var(--washi-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+        .ma-section { padding: 8rem 2rem; }
+        
+        /* --- HEADER & NAVIGATION STYLES --- */
+        
+        /* Shared underline hover effect for navigation links */
+        .nav-link {
+            position: relative;
+            padding-bottom: 4px;
+            cursor: pointer;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: var(--bamboo-beige); 
+            transition: width 0.3s ease-out;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Style for the header element itself */
+        #main-header {
+            transition: background-color 0.3s ease-in-out;
+            background-color: transparent; 
+            color: var(--washi-white);
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        /* Class added when user scrolls (BACKGROUND/BLUR) */
+        .header-scrolled {
+            background-color: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Class added when user scrolls (TEXT/ICON COLOR) */
+        .header-scrolled-text {
+            color: var(--kintsugi-gold) !important; 
+        }
+        .header-scrolled-text .text-white\/70 {
+            color: var(--kintsugi-gold) !important;
+        }
+        .header-scrolled-text .nav-link,
+        .header-scrolled-text a,
+        .header-scrolled-text svg {
+            color: var(--kintsugi-gold);
+            stroke: var(--kintsugi-gold); 
+        }
+        .header-scrolled-text .nav-link::after {
+            background-color: var(--kintsugi-gold); 
+        }
+
+        /* Mobile Menu Styles */
+        #mobile-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--sumi-black);
+            z-index: 55; /* Higher than header (z-50) */
+            transform: translateX(100%);
+            transition: transform 0.4s ease-in-out;
+            padding: 2rem;
+        }
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        /* --- END HEADER & NAVIGATION STYLES --- */
+
+
+        #custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--kintsugi-gold);
+            opacity: 0.5;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            z-index: 9999;
+        }
+        #custom-cursor.expanded {
+            transform: translate(-50%, -50%) scale(2);
+            opacity: 0.8;
+        }
+        #hero-bg-container { height: 100vh; overflow: hidden; }
+        #hero-bg {
+            background-image: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%);
+            background-size: cover;
+            background-position: center;
+            height: 120vh;
+            width: 100%;
+            transition: transform 0.1s linear;
+        }
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        .scroll-reveal.visible { opacity: 1; transform: translateY(0); }
+        .gold-hover:hover { color: var(--kintsugi-gold); transition: color 0.3s ease; }
+        .product-image {
+            transition: all 0.4s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .product-image:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(179,167,107,0.3);
+        }
+        .pulse-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(179,167,107,0.1) 0%, transparent 70%);
+            animation: pulse 6s infinite;
+            z-index: 0;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0; }
+            100% { transform: scale(0.8); opacity: 0.3; }
+        }
+        .elegant-card {
+            background: rgba(26, 26, 26, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(179, 167, 107, 0.2);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- FOOTER STYLES --- */
+        .footer-link {
+            color: var(--washi-white);
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            text-decoration: none;
+        }
+        .footer-link:hover {
+            opacity: 1;
+        }
+        /* --- END FOOTER STYLES --- */
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Custom Cursor -->
+    <div id="custom-cursor"></div>
+
+    <!-- NEW HEADER NAVIGATION BLOCK -->
+    <header id="main-header" class="w-full z-50 sticky top-0">
+        <nav class="max-w-7xl mx-auto px-6 lg:px-8 py-6 flex justify-between items-center relative">
+            
+            <!-- Left Navigation (Desktop) -->
+            <div class="hidden md:flex items-center space-x-8">
+                <!-- Links: Our Story, Gallery, The Offering -->
+                <a href="#story" class="nav-link text-sm font-medium uppercase tracking-wider">Our Story</a>
+                <a href="#gallery" class="nav-link text-sm font-medium uppercase tracking-wider">Gallery</a>
+                <a href="#offering" class="nav-link text-sm font-medium uppercase tracking-wider">The Offering</a>
+            </div>
+
+            <!-- Logo (Center - Visible on all devices) -->
+            <div class="text-center flex-1 md:flex-none md:absolute md:left-1/2 md:-translate-x-1/2">
+                <a href="#" class="cursor-pointer" aria-label="Sakana no Ichi Homepage">
+                    <div class="text-3xl font-cormorant font-semibold tracking-wider">
+                        魚の市
+                    </div>
+                    <!-- The logo subtitle text color must be toggled with the header class -->
+                    <div class="text-xs font-cormorant tracking-widest uppercase text-white/70 -mt-1">
+                        Sakana no Ichi
+                    </div>
+                </a>
+            </div>
+
+            <!-- Right Navigation (Desktop - Cart Removed) -->
+            <div class="hidden md:flex items-center space-x-8">
+                 <!-- Links: Essence, The Ritual, Journal -->
+                <a href="#essence" class="nav-link text-sm font-medium uppercase tracking-wider">Essence</a>
+                <a href="#ritual" class="nav-link text-sm font-medium uppercase tracking-wider">The Ritual</a>
+                <a href="#journal" class="nav-link text-sm font-medium uppercase tracking-wider">Journal</a>
+            </div>
+
+            <!-- Mobile Menu Trigger (Cart Removed) -->
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="p-2 ml-2" aria-label="Open menu">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+    <!-- END NEW HEADER NAVIGATION BLOCK -->
+    
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobile-menu" class="md:hidden">
+        <div class="flex justify-end p-6">
+            <button id="close-menu-button" aria-label="Close menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-[var(--kintsugi-gold)]">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <nav class="flex flex-col space-y-8 mt-12 px-6">
+            <a href="#story" class="mobile-nav-link text-3xl font-cormorant text-[var(--kintsugi-gold)] hover:text-[var(--washi-white)] transition-colors">Our Story</a>
+            <a href="#gallery" class="mobile-nav-link text-3xl font-cormorant text-[var(--kintsugi-gold)] hover:text-[var(--washi-white)] transition-colors">Gallery</a>
+            <a href="#offering" class="mobile-nav-link text-3xl font-cormorant text-[var(--kintsugi-gold)] hover:text-[var(--washi-white)] transition-colors">The Offering</a>
+            <a href="#essence" class="mobile-nav-link text-3xl font-cormorant text-[var(--kintsugi-gold)] hover:text-[var(--washi-white)] transition-colors">Essence</a>
+            <a href="#ritual" class="mobile-nav-link text-3xl font-cormorant text-[var(--kintsugi-gold)] hover:text-[var(--washi-white)] transition-colors">The Ritual</a>
+            <a href="#journal" class="mobile-nav-link text-3xl font-cormorant text-[var(--kintsugi-gold)] hover:text-[var(--washi-white)] transition-colors">Journal</a>
+            <a href="#contact" class="mobile-nav-link text-3xl font-cormorant text-[var(--kintsugi-gold)] hover:text-[var(--washi-white)] transition-colors">Contact</a>
+        </nav>
+    </div>
+    <!-- END MOBILE MENU OVERLAY -->
+
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative h-screen flex items-center justify-center text-center overflow-hidden">
+        <div id="hero-bg-container">
+            <div id="hero-bg" class="absolute inset-0"></div>
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-b from-[var(--sumi-black)]/90 via-[var(--sumi-black)]/70 to-transparent"></div>
+        <div class="relative z-10 opacity-0 transition-all duration-1000" id="hero-content">
+            <div class="max-w-4xl mx-auto px-4">
+                <h1 class="text-7xl md:text-8xl font-cormorant mb-8 leading-tight">The Art of Nourishment</h1>
+                <p class="text-xl md:text-2xl mb-12 opacity-80 max-w-2xl mx-auto">Where timeless Japanese artistry meets modern nutritional science</p>
+                <a href="#story" class="inline-block border-2 border-[var(--kintsugi-gold)] text-[var(--kintsugi-gold)] px-12 py-4 uppercase tracking-widest text-lg font-medium hover:bg-[var(--kintsugi-gold)] hover:text-[var(--sumi-black)] transition-all duration-300 product-image">Begin the Ritual</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Story Section -->
+    <section id="story" class="ma-section scroll-reveal bg-[var(--sumi-black)]">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-20">
+                <h2 class="text-6xl font-cormorant mb-6">Living Art</h2>
+                <p class="text-xl max-w-3xl mx-auto opacity-80">Sakana no Ichi transforms fish care from a mundane task into a profound ritual of beauty, excellence, and authenticity.</p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <!-- UPDATED COPY START -->
+                    <p class="text-lg leading-relaxed mb-8 opacity-90">For the Japanese, a Koi is not a pet, but a nishikigoi, a swimming jewel. This is the truth of Living Art. It transforms you, the keeper, into an artist dedicated to a profound ritual of beauty, excellence, and authenticity. We are the community dedicated to this pursuit.</p>
+                    <p class="text-lg leading-relaxed mb-8">Our philosophy fuses centuries of serene Tradition, the quiet elegance of sumi-e craftsmanship, with the precision of modern Science. We craft peer reviewed nutrition designed for flawless vitality and vibrant color expression.</p>
+                    <p class="text-lg leading-relaxed opacity-90">We believe your devotion deserves a product that honors it. Sakana no Ichi is the bridge for the Mindful Keeper, ensuring every choice you make is a gesture of art toward the majestic life you cultivate.</p>
+                    <!-- UPDATED COPY END -->
+                </div>
+                <!-- Image section order is changed on mobile to be 2nd -->
+                <div class="relative h-96 rounded-2xl overflow-hidden product-image">
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_ybpvizybpvizybpv.png" alt="Mindful Keeper feeding Koi with reverence" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-br from-[var(--sumi-black)]/60 to-transparent"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery of Colors -->
+    <section id="gallery" class="ma-section bg-[var(--washi-white)] text-[var(--sumi-black)] scroll-reveal">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-20">
+                <h2 class="text-6xl font-cormorant mb-6">Gallery of Colors</h2>
+                <!-- NEW EXPANDED TEXT START -->
+                <p class="text-xl max-w-3xl mx-auto opacity-80 mb-4">Color is the very language of the Nishikigoi the truest measure of vitality and lineage. We believe in unlocking the full, deep spectrum of your Living Art.</p>
+                <p class="text-lg max-w-3xl mx-auto opacity-70">Sakana no Ichi's peer reviewed, naturally potent formulas ensure pigment integrity, transforming your pond into a mesmerizing canvas where every hue is flawless.</p>
+                <!-- NEW EXPANDED TEXT END -->
+            </div>
+            <!-- Responsive grid: 1 column on mobile, 3 on desktop -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <img src="C:\Users\User1\Downloads\Gemini_Generated_Image_54i52j54i52j54i5.png" alt="Vibrant Koi radiance" class="w-full h-80 object-cover rounded-2xl product-image">
+                <img src="C:\Users\User1\Downloads\Gemini_Generated_Image_k84c0ck84c0ck84c.png" alt="Koi color perfection" class="w-full h-80 object-cover rounded-2xl product-image">
+                <img src="C:\Users\User1\Downloads\Gemini_Generated_Image_coddfwcoddfwcodd.png" alt="Living jewel hues" class="w-full h-80 object-cover rounded-2xl product-image">
+            </div>
+        </div>
+    </section>
+
+    <!-- The Offering (REDESIGNED) -->
+    <section id="offering" class="ma-section bg-[var(--sumi-black)] scroll-reveal">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-20">
+                <h2 class="text-6xl font-cormorant mb-6">The Offering</h2>
+                <p class="text-xl max-w-3xl mx-auto opacity-80">Crafted for the Keeper's ritual: Excellence in every detail.</p>
+            </div>
+            <!-- New, Cleaner Layout -->
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+                
+                <!-- Text and Detail Cards (Left Column) -->
+                <div class="space-y-12">
+                    <div class="duality-text">
+                        <h3 class="text-4xl font-cormorant mb-6 text-[var(--kintsugi-gold)]">Artistry in Every Detail</h3>
+                        <p class="text-lg leading-relaxed mb-4 opacity-90">In the fusion of ink and science, each pouch becomes a canvas. Matte black whispers tradition's depth, while Kintsugi gold traces excellence's vein. Through the window, precision's crystals gleam the vital spark that awakens Living Art.</p>
+                        <p class="text-lg leading-relaxed opacity-70">Our packaging is designed not just for preservation, but to honor the sacred offering within.</p>
+                    </div>
+
+                    <!-- Detail Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="bg-[var(--stone-gray)] p-6 rounded-xl border border-transparent hover:border-[var(--kintsugi-gold)] transition-colors duration-300">
+                            <h4 class="text-xl font-cormorant mb-2 text-[var(--washi-white)]">The Core Formulas</h4>
+                            <p class="text-sm opacity-80">A balanced selection of three size variants (Micro, Medium, Large) to match the maturity and needs of your Living Art.</p>
+                        </div>
+                        <div class="bg-[var(--stone-gray)] p-6 rounded-xl border border-transparent hover:border-[var(--kintsugi-gold)] transition-colors duration-300">
+                            <h4 class="text-xl font-cormorant mb-2 text-[var(--washi-white)]">Pondside Ritual</h4>
+                            <p class="text-sm opacity-80">The resealable, UV-protective packaging ensures maximum freshness and integrates seamlessly into the mindful daily feeding ritual.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Product Image (Right Column) - Now matches height of left column -->
+                <div class="relative h-full flex items-center justify-center">
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_4s9kc74s9kc74s9k.png" alt="Premium Koi nourishment packaging" class="w-full h-full object-contain rounded-2xl product-image" style="max-height: 800px;">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[var(--sumi-black)]/30 to-transparent"></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Essence of Excellence -->
+    <section id="essence" class="ma-section bg-gradient-to-br from-[var(--sumi-black)] via-[var(--stone-gray)] to-[var(--bamboo-beige)] scroll-reveal relative overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 relative z-10">
+            <div class="text-center mb-20">
+                <h2 class="text-6xl font-cormorant mb-6 text-[var(--kintsugi-gold)]">Essence of Excellence</h2>
+                <p class="text-xl opacity-80 max-w-3xl mx-auto">Where passion ignites a timeless legacy for your Koi</p>
+            </div>
+            <!-- Responsive grid with reverse order on mobile for text above image -->
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8 order-2 lg:order-1">
+                    <div class="relative h-64 rounded-2xl overflow-hidden product-image">
+                        <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_iiq23kiiq23kiiq2.png" alt="Premium Koi pellet craftsmanship" class="w-full h-full object-cover">
+                        <div class="pulse-overlay"></div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="relative h-32 rounded-2xl overflow-hidden product-image">
+                            <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_w295xkw295xkw295.png" alt="Rich ingredient blend" class="w-full h-full object-cover">
+                            <div class="pulse-overlay"></div>
+                        </div>
+                        <div class="relative h-32 rounded-2xl overflow-hidden product-image">
+                            <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_378oi9378oi9378o.png" alt="Exceptional nutrient profile" class="w-full h-full object-cover">
+                            <div class="pulse-overlay"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="elegant-card order-1 lg:order-2">
+                    <h3 class="text-3xl font-cormorant mb-6">The Legacy Feed: Crafted in the Japanese Tradition</h3>
+                    <p class="text-lg leading-relaxed mb-4 opacity-90">Each pellet is a sacred offering, born from the soul of Japan’s pristine waters. We weave hand harvested Spirulina for radiant hues, iodine rich kelp for boundless vitality, and a masterful blend of vitamins into every grain crafted with unwavering devotion.</p>
+                    <p class="text-lg leading-relaxed opacity-90">This is more than sustenance; it’s a transformative elixir, sculpted with precision to awaken your Koi’s deepest colors and elevate them into living masterpieces of nature’s art.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Ritual -->
+    <section id="ritual" class="ma-section bg-[var(--washi-white)] text-[var(--sumi-black)] scroll-reveal">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-20">
+                <h2 class="text-6xl font-cormorant mb-6">The Ritual</h2>
+                <p class="text-xl opacity-80">A meditative connection between Keeper and Living Art</p>
+            </div>
+            <!-- Standard responsive grid -->
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_jg9qr5jg9qr5jg9q (1).png" alt="Keeper performing the feeding ritual" class="w-full h-96 object-cover rounded-2xl product-image">
+                </div>
+                <div>
+                    <h3 class="text-3xl font-cormorant mb-6">Mindful Nourishment</h3>
+                    <p class="text-lg leading-relaxed mb-8 opacity-90">The act of feeding is the core of The Ritual—a direct, meditative connection between Keeper and Living Art. This is Mindful Nourishment.</p>
+                    <p class="text-lg leading-relaxed mb-8 opacity-90">Observe the Wabi sabi simplicity of the bamboo scoop in your hand; its quiet elegance transforms the mundane. As you hand feed, you are not simply providing sustenance, you are forging trust.</p>
+                    <p class="text-lg leading-relaxed opacity-80">Every moment is a deliberate, peaceful gesture that secures and elevates your Koi to the status of a living masterpiece.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Journal -->
+    <section id="journal" class="ma-section bg-[var(--sumi-black)] scroll-reveal">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-20">
+                <h2 class="text-6xl font-cormorant mb-6">The Journal</h2>
+                <p class="text-xl opacity-80">Reflections for the Keeper</p>
+            </div>
+            <!-- Responsive grid: 1 column on mobile, 3 on desktop -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-[var(--stone-gray)] p-8 rounded-2xl hover:bg-[var(--kintsugi-gold)]/10 transition-all duration-300">
+                    <h3 class="text-2xl font-cormorant mb-4">Ma: The Active Silence</h3>
+                    <p class="mb-6 opacity-90">Negative space as the foundation of serenity in art, pond, and life.</p>
+                    <a href="#" class="text-[var(--vitality-red)] hover:underline font-medium">Read Reflection →</a>
+                </div>
+                <div class="bg-[var(--stone-gray)] p-8 rounded-2xl hover:bg-[var(--kintsugi-gold)]/10 transition-all duration-300">
+                    <h3 class="text-2xl font-cormorant mb-4">Patience and The Koi</h3>
+                    <p class="mb-6 opacity-90">Waiting reveals nature's deepest beauty. The Keeper's greatest virtue.</p>
+                    <a href="#" class="text-[var(--vitality-red)] hover:underline font-medium">Read Reflection →</a>
+                </div>
+                <div class="bg-[var(--stone-gray)] p-8 rounded-2xl hover:bg-[var(--kintsugi-gold)]/10 transition-all duration-300">
+                    <h3 class="text-2xl font-cormorant mb-4">Nishikigoi Legacy</h3>
+                    <p class="mb-6 opacity-90">From Japanese masterpiece to global living jewel.</p>
+                    <a href="#" class="text-[var(--vitality-red)] hover:underline font-medium">Read Reflection →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW CTA STRIP -->
+    <section id="cta-final" class="py-20 bg-gradient-to-r from-[var(--stone-gray)] to-[var(--sumi-black)] scroll-reveal">
+        <div class="max-w-5xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between text-center md:text-left">
+            <div class="mb-6 md:mb-0 max-w-md">
+                <h3 class="text-3xl font-cormorant font-semibold text-[var(--kintsugi-gold)] mb-2">Ready to elevate the art?</h3>
+                <p class="text-lg opacity-80">Join the circle of mindful keepers and access exclusive insights.</p>
+            </div>
+            <a href="#contact" class="inline-block border-2 border-[var(--kintsugi-gold)] text-[var(--kintsugi-gold)] px-8 py-3 uppercase tracking-widest text-base font-medium hover:bg-[var(--kintsugi-gold)] hover:text-[var(--sumi-black)] transition-all duration-300 rounded-full">
+                Get In Touch
+            </a>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-20 bg-gradient-to-b from-[var(--sumi-black)] to-[var(--stone-gray)] scroll-reveal">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-6xl font-cormorant mb-8">Connect</h2>
+            <p class="text-xl mb-12 opacity-80 max-w-2xl mx-auto">Share your journey as Keeper or seek guidance in the art.</p>
+            <form class="max-w-lg mx-auto space-y-6">
+                <input type="text" placeholder="Name" class="w-full p-5 bg-[var(--stone-gray)] border-none rounded-xl text-lg">
+                <input type="email" placeholder="Email" class="w-full p-5 bg-[var(--stone-gray)] border-none rounded-xl text-lg">
+                <textarea placeholder="Your message" rows="5" class="w-full p-5 bg-[var(--stone-gray)] border-none rounded-xl text-lg resize-none"></textarea>
+                <button type="submit" class="w-full py-5 bg-transparent border-2 border-[var(--kintsugi-gold)] text-[var(--kintsugi-gold)] uppercase tracking-widest text-lg font-medium hover:bg-[var(--kintsugi-gold)] hover:text-[var(--sumi-black)] transition-all duration-300 rounded-xl product-image">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- SMALL GALLERY STRIP -->
+    <section id="gallery-strip" class="bg-[var(--sumi-black)] pt-16 pb-16 scroll-reveal">
+        <div class="max-w-7xl mx-auto px-2 lg:px-4">
+            <h3 class="text-center text-4xl font-cormorant mb-12 text-[var(--kintsugi-gold)]">From The Keepers</h3>
+            <!-- Responsive grid: 2 columns on mobile, 3 on tablet, 6 on desktop -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div class="aspect-square overflow-hidden rounded-lg product-image">
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_xpe11wxpe11wxpe1.png" alt="Koi pond detail 1" class="w-full h-full object-cover">
+                </div>
+                <div class="aspect-square overflow-hidden rounded-lg product-image">
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_5xn2wg5xn2wg5xn2.png" alt="Koi pond detail 2" class="w-full h-full object-cover">
+                </div>
+                <div class="aspect-square overflow-hidden rounded-lg product-image">
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_378oi9378oi9378o.png" alt="Koi pond detail 3" class="w-full h-full object-cover">
+                </div>
+                <div class="aspect-square overflow-hidden rounded-lg product-image">
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_hmz1wohmz1wohmz1.png" alt="Koi pond detail 4" class="w-full h-full object-cover">
+                </div>
+                <div class="aspect-square overflow-hidden rounded-lg product-image">
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_oh1l0loh1l0loh1l.png" alt="Koi pond detail 5" class="w-full h-full object-cover">
+                </div>
+                <div class="aspect-square overflow-hidden rounded-lg product-image">
+                    <img src="C:\Users\User1\OneDrive\Desktop\sakana\images\Gemini_Generated_Image_qe6rdcqe6rdcqe6r.png" alt="Koi pond detail 6" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 md:py-24 bg-[var(--sumi-black)] border-t border-[var(--stone-gray)]">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+            <!-- Logo -->
+            <div class="mb-8">
+                <a href="#" class="cursor-pointer" aria-label="Sakana no Ichi Homepage">
+                    <div class="text-4xl font-cormorant font-semibold tracking-wider inline-block text-[var(--kintsugi-gold)]">
+                        魚の市
+                    </div>
+                    <div class="text-sm font-cormorant tracking-widest uppercase text-white/70 -mt-1">
+                        Sakana no Ichi
+                    </div>
+                </a>
+            </div>
+            <!-- Links (Updated to match existing sections) -->
+            <div class="flex flex-wrap justify-center space-x-6 mb-8">
+                <a href="#story" class="footer-link text-sm">Our Story</a>
+                <a href="#gallery" class="footer-link text-sm">Gallery</a>
+                <a href="#offering" class="footer-link text-sm">The Offering</a>
+                <a href="#essence" class="footer-link text-sm">Essence</a>
+                <a href="#ritual" class="footer-link text-sm">The Ritual</a>
+                <a href="#journal" class="footer-link text-sm">Journal</a>
+                <a href="#contact" class="footer-link text-sm">Contact</a>
+            </div>
+            <!-- Social -->
+            <div class="flex justify-center space-x-5 mb-10">
+                <a href="#" class="footer-link" aria-label="Facebook">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
+                </a>
+                <a href="#" class="footer-link" aria-label="Instagram">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465 2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 12.315 2zM12 7.042c-2.733 0-4.958 2.225-4.958 4.958s2.225 4.958 4.958 4.958 4.958-2.225 4.958-4.958S14.733 7.042 12 7.042zm0 8.217c-1.801 0-3.259-1.458-3.259-3.259s1.458-3.259 3.259-3.259 3.259 1.458 3.259 3.259-1.458 3.259-3.259 3.259zM16.965 6.57c-.622 0-1.125.503-1.125 1.125s.503 1.125 1.125 1.125 1.125-.503 1.125-1.125-.503-1.125-1.125-1.125z" clip-rule="evenodd" /></svg>
+                </a>
+                <a href="#" class="footer-link" aria-label="Twitter">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" /></svg>
+                </a>
+            </div>
+            <!-- Legal -->
+            <p class="text-sm footer-link">&copy; 2025 Sakana no Ichi. All rights reserved. &bull; <a href="#" class="footer-link">Privacy Policy</a> &bull; <a href="#" class="footer-link">Terms of Use</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('custom-cursor');
+        let cursorX = 0, cursorY = 0, targetX = 0, targetY = 0;
+        document.addEventListener('mousemove', (e) => {
+            targetX = e.clientX; targetY = e.clientY;
+            const interactive = e.target.closest('a, button, input, textarea');
+            cursor.classList.toggle('expanded', !!interactive);
+        });
+        const animateCursor = () => {
+            cursorX += (targetX - cursorX) * 0.25;
+            cursorY += (targetY - cursorY) * 0.25;
+            cursor.style.left = `${cursorX}px`;
+            cursor.style.top = `${cursorY}px`;
+            requestAnimationFrame(animateCursor);
+        };
+        animateCursor();
+
+        // Mobile Menu Toggling Logic
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuButton = document.getElementById('mobile-menu-button');
+        const closeButton = document.getElementById('close-menu-button');
+        const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+        function toggleMobileMenu(isOpen) {
+            mobileMenu.classList.toggle('open', isOpen);
+            document.body.classList.toggle('overflow-hidden', isOpen); // Prevent background scroll
+        }
+
+        menuButton.addEventListener('click', () => toggleMobileMenu(true));
+        closeButton.addEventListener('click', () => toggleMobileMenu(false));
+        
+        // Close menu when a link is clicked
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                // Smooth scrolling handled by global logic, just close the menu
+                toggleMobileMenu(false);
+            });
+        });
+
+        // Hero Parallax + Content Reveal
+        const heroBg = document.getElementById('hero-bg');
+        setTimeout(() => document.getElementById('hero-content').classList.add('opacity-100', 'translate-y-0'), 3000);
+        
+        window.addEventListener('scroll', () => {
+            const scroll = window.scrollY;
+            heroBg.style.transform = `translateY(${scroll * 0.4}px)`;
+
+            // NEW HEADER SCROLL LOGIC
+            const header = document.getElementById('main-header');
+            const scrolledBgClass = 'header-scrolled';
+            const scrolledTextColorClass = 'header-scrolled-text';
+
+            // Check if user has scrolled more than 10px
+            if (scroll > 10) {
+                // Add dark background and gold text
+                header.classList.add(scrolledBgClass);
+                header.classList.add(scrolledTextColorClass);
+            } else {
+                // Remove both when at the top
+                header.classList.remove(scrolledBgClass);
+                header.classList.remove(scrolledTextColorClass);
+            }
+        });
+
+        // Scroll Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible'));
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Initial check for header state in case of page reload while scrolled
+        window.addEventListener('load', () => {
+            const header = document.getElementById('main-header');
+            const scrolledBgClass = 'header-scrolled';
+            const scrolledTextColorClass = 'header-scrolled-text';
+
+            if (window.scrollY > 10) {
+                header.classList.add(scrolledBgClass);
+                header.classList.add(scrolledTextColorClass);
+            }
+        });
+    </script>
+
+</body>
+</html>
